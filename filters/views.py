@@ -21,3 +21,6 @@ class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキ�
 
     def get_queryset(self):
         return Filter.objects.filter() #コンテキスト変数に値をセットする関数
+
+def apply():
+    print('apply')

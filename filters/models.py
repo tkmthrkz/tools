@@ -10,10 +10,3 @@ class Filter(models.Model):
     #オブジェクトにstrやprintを適用した場合に呼び出される（戻り値は文字列型）
     def __str__(self): 
         return self.filter_name
-
-class Option(models.Model):
-    filter = models.ForeignKey(Filter, on_delete=models.CASCADE)
-    option_name = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.option_name
