@@ -1,0 +1,9 @@
+{% if filter_list %}
+    <ul>
+    {% for filter in filter_list %}
+        <li><a href="{% url 'filters:detail' filter.id %}">{{ filter.filter_name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>利用できるフィルターはありません</p>
+{% endif %}
