@@ -10,3 +10,7 @@ class Filter(models.Model):
     #オブジェクトにstrやprintを適用した場合に呼び出される（戻り値は文字列型）
     def __str__(self): 
         return self.filter_name
+
+class Image(models.Model):
+    img_src = models.ImageField(upload_to='.')
+    img_opt = models.ImageField()
