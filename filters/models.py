@@ -12,5 +12,5 @@ class Filter(models.Model):
         return self.filter_name
 
 class Image(models.Model):
-    img_src = models.ImageField(upload_to='.')
+    img_src = models.ImageField(upload_to='./upload')
     img_opt = models.ImageField()

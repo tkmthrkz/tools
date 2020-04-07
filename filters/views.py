@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import loader
 from django.urls import reverse
@@ -8,6 +8,8 @@ from django.conf import settings
 
 from .models import Filter, Image
 from .forms import ImageForm
+
+import cv2
 
 # Create your views here.
 class IndexView(generic.ListView):
@@ -24,31 +26,27 @@ class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキ�
     def get_queryset(self):
         return Filter.objects.filter() #コンテキスト変数に値をセットする関数
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = ImageForm()
+        return context
     
 
 def apply(request, filter_name):
     print('request = {} filter_name = {}'.format(request, filter_name))
-    print(request.POST.get('imgfile'))
     if request.method == 'POST':
         form = ImageForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('filters:apply')
+            return redirect(reverse('filters:apply', kwargs=dict(filter_name=filter_name)))
     else:
         form = ImageForm()
-        latest_img_id = Image.object.latest('id').id
-        latest_img = Image.object.get(id=latest_img_id)
+        latest_img_id = Image.objects.latest('id').id
+        latest_img = Image.objects.get(id=latest_img_id)
         input_path = settings.BASE_DIR + latest_img.img_src.url
         output_path = settings.BASE_DIR + '/output/output.jpg'
-        #処理関数を書く
-    
-    # try:
-    # except: #なんらかのエラーが発生した場合
-    #     return render(request, 'filters/detail.html', {
-    #         'filter': filter_name, 
-    #         'error_message': 'もう一度ファイルを選択してください', 
-    #         })
-    # else: #ファイルが選択されている場合
-    #     print(request.POST['imgfile'])
+        gray() #仮の画像処理関数
+        return HttpResponseRedirect(reverse('filters:index'))
 
-    return HttpResponseRedirect(reverse('filters:index'))
+def gray():
+    return
