@@ -44,9 +44,12 @@ def apply(request, filter_name):
         latest_img_id = Image.objects.latest('id').id
         latest_img = Image.objects.get(id=latest_img_id)
         input_path = settings.BASE_DIR + latest_img.img_src.url
-        output_path = settings.BASE_DIR + '/output/output.jpg'
-        gray() #仮の画像処理関数
+        output_path = settings.BASE_DIR + '/image/output/output.jpg'
+        print(output_path)
+        gray(input_path, output_path) #仮の画像処理関数
         return HttpResponseRedirect(reverse('filters:index'))
 
-def gray():
-    return
+def gray(input_path, output_path):
+    img = cv2.imread(input_path)
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    cv2.imwrite(output_path, img_gray)
