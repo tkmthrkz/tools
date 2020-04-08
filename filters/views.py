@@ -8,8 +8,7 @@ from django.conf import settings
 
 from .models import Filter, Image
 from .forms import ImageForm
-
-import cv2
+from .filter_pro import Filter_pro #フィルタ処理実装部のインポート
 
 # Create your views here.
 class IndexView(generic.ListView):
@@ -41,15 +40,9 @@ def apply(request, filter_name):
             return redirect(reverse('filters:apply', kwargs=dict(filter_name=filter_name)))
     else:
         form = ImageForm()
-        latest_img_id = Image.objects.latest('id').id
-        latest_img = Image.objects.get(id=latest_img_id)
-        input_path = settings.BASE_DIR + latest_img.img_src.url
-        output_path = settings.BASE_DIR + '/image/output/output.jpg'
-        print(output_path)
-        gray(input_path, output_path) #仮の画像処理関数
+        filter_pro = Filter_pro()
+        if filter_name == 'gray':
+            filter_pro.gray()
+        elif filter_name == 'blur': #ガウシアン
+            filter_pro.blur(3)
         return HttpResponseRedirect(reverse('filters:index'))
-
-def gray(input_path, output_path):
-    img = cv2.imread(input_path)
-    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    cv2.imwrite(output_path, img_gray)
