@@ -11,6 +11,13 @@ class Filter(models.Model):
     def __str__(self): 
         return self.filter_name
 
+class Option(models.Model):
+    filter = models.ForeignKey(Filter, on_delete=models.CASCADE)
+    option_name = models.CharField(max_length=100) #フィルタのオプション名
+    
+    def __str__(self):
+        return self.option_name
+
 class Image(models.Model):
     img_src = models.ImageField(upload_to='./upload')
     img_opt = models.ImageField()
