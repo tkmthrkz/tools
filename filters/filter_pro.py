@@ -1,3 +1,6 @@
+'''
+フィルタ処理実装部
+'''
 from django.conf import settings
 
 from .models import Image

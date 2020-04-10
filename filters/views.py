@@ -7,8 +7,9 @@ from django.utils import timezone
 from django.conf import settings
 
 from .models import Filter, Image
-from .forms import ImageForm
+from .forms import *
 from .filter_pro import Filter_pro #フィルタ処理実装部のインポート
+from .const import *
 
 # Create your views here.
 class IndexView(generic.ListView):
@@ -25,9 +26,14 @@ class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキ�
     def get_queryset(self):
         return Filter.objects.filter() #コンテキスト変数に値をセットする関数
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs): #コンテキスト変数の追加
         context = super().get_context_data(**kwargs)
-        context['form'] = ImageForm()
+        #フィルタにより分岐
+        #filter_pk = {'blur': 2, 'gray': 3, }
+        if self.kwargs['pk'] == filter_pk['gray']: #グレースケール処理の場合
+            context['form'] = GrayForm()
+        elif self.kwargs['pk'] == filter_pk['blur']:
+            context['form'] = BlurForm()
         return context
     
 
@@ -41,8 +47,8 @@ def apply(request, filter_name):
     else:
         form = ImageForm()
         filter_pro = Filter_pro()
-        if filter_name == 'gray':
+        if filter_name == filter_nametoname['gray']:
             filter_pro.gray()
-        elif filter_name == 'blur': #ガウシアン
+        elif filter_name == filter_nametoname['blur']: #ガウシアン
             filter_pro.blur(3)
         return HttpResponseRedirect(reverse('filters:index'))
