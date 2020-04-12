@@ -40,15 +40,14 @@ class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキ�
 def apply(request, filter_name):
     print('request = {} filter_name = {}'.format(request, filter_name))
     if request.method == 'POST':
-        form = ImageForm(request.POST, request.FILES)
+        form = BaseForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect(reverse('filters:apply', kwargs=dict(filter_name=filter_name)))
-    else:
-        form = ImageForm()
-        filter_pro = Filter_pro()
-        if filter_name == filter_nametoname['gray']:
-            filter_pro.gray()
-        elif filter_name == filter_nametoname['blur']: #ガウシアン
-            filter_pro.blur(3)
-        return HttpResponseRedirect(reverse('filters:index'))
+            filter_pro = Filter_pro()
+            if filter_name == filter_nametoname['gray']:
+                filter_pro.gray()
+            elif filter_name == filter_nametoname['blur']:
+                filter_size = int(form.data['filter_size'])
+                filter_pro.blur(filter_size)
+            return HttpResponseRedirect(reverse('filters:index'))
+    return redirect(reverse('filters:detail', kwargs=dict(filter_name=filter_pk[filter_name])))
