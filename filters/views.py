@@ -6,6 +6,9 @@ from django.views import generic
 from django.utils import timezone
 from django.conf import settings
 
+import tkinter
+from tkinter import filedialog
+
 from .models import Filter, Image
 from .forms import *
 from .filter_pro import Filter_pro #フィルタ処理実装部のインポート
@@ -43,11 +46,15 @@ def apply(request, filter_name):
         form = BaseForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            filter_pro = Filter_pro()
+            input_path = settings.BASE_DIR + '/image/upload/' + request.FILES['img_src'].name
+            #output_path = filedialog.askdirectory(title='出力先を選択してください')
+            output_path = settings.BASE_DIR + '/image/output/output.jpg' #tkinterで解決できないエラーを解決するまでの仮パス
+            filter_pro = Filter_pro(input_path, output_path)
+            
             if filter_name == filter_nametoname['gray']:
-                filter_pro.gray()
+                filter_pro.gray() #ファイル書き出しまで行う
             elif filter_name == filter_nametoname['blur']:
                 filter_size = int(form.data['filter_size'])
-                filter_pro.blur(filter_size)
+                filter_pro.blur(filter_size) #ファイル書き出しまで行う
             return HttpResponseRedirect(reverse('filters:index'))
     return redirect(reverse('filters:detail', kwargs=dict(filter_name=filter_pk[filter_name])))
