@@ -11,6 +11,9 @@ from django.contrib.auth import login, authenticate
 import tkinter
 from tkinter import filedialog
 
+import tkinter
+from tkinter import filedialog
+
 from .models import Filter, Image
 from .forms import *
 from .filter_pro import Filter_pro #フィルタ処理実装部のインポート
