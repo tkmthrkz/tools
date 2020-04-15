@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
-from .models import Filter, Image, User
+from .models import Filter, Image
 
 #フィルタオプション設定画面で使うフォーム
 class DetailForm(forms.ModelForm):
@@ -22,7 +23,7 @@ class BlurForm(DetailForm):
         min_value=1,
     )
 
-class SignupForm(forms.ModelForm):
+class SignupForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ('user_name', 'password1', 'password2')
+        fields = ('username', 'password1', 'password2')

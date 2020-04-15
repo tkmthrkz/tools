@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import loader
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.views.generic import CreateView
 from django.utils import timezone
@@ -65,17 +65,27 @@ def apply(request, filter_name):
     return redirect(reverse('filters:detail', kwargs=dict(filter_name=filter_pk[filter_name])))
 
 class SignupView(CreateView):
-    def post(self, request, *args, **kwargs): #POST時に自動で呼び出される
-        form = SignupForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('user_name')
-            password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            return redirect(reverse('filters:index'))
-        return render(request, 'filters/signup.html', {'form': form, })
+    form_class = SignupForm
+    template_name = 'filters/signup.html'
+    success_url = reverse_lazy('filters:index')
+
+    def form_valid(self, form): #バリデーションが有効の時、呼び出される
+        user = form.save()
+        login(self.request, user)
+        self.object = user
+        return HttpResponseRedirect(self.get_success_url())
+
+    # def post(self, request, *args, **kwargs): #POST時に自動で呼び出される
+    #     form = SignupForm(data=request.POST)
+    #     if form.is_valid():
+    #         form.save()
+    #         username = form.cleaned_data.get('username')
+    #         password = form.cleaned_data.get('password1')
+    #         user = authenticate(username=username, password=password)
+    #         login(request, user)
+    #         return redirect(reverse('filters:index'))
+    #     return render(request, 'filters/signup.html', {'form': form, })
     
-    def get(self, request, *args, **kwargs):
-        form = SignupForm(request.POST)
-        return render(request, 'filters/signup.html', {'form': form, })
+    # def get(self, request, *args, **kwargs):
+    #     form = SignupForm(request.POST)
+    #     return render(request, 'filters/signup.html', {'form': form, })

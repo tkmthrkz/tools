@@ -1,10 +1,18 @@
+
 <form method='POST' action="{% url 'filters:signup' %}">
     {% csrf_token %}
     <label>ユーザーID</label>
-    {{ form.user_name }}
+    {{ form.username }}
     <label>パスワード</label>
     {{ form.password1 }}
     <label>パスワード(確認)</label>
     {{ form.password2 }}
-    <button type = "submit">登録</button>
+    <button type = "submit">登録</button>  
 </form>
+{% if form.errors %}
+    {% for field in form %}
+        {% for error in field.errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+    {% endfor %}
+{% endif %} 
