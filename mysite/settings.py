@@ -82,8 +82,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'django_mysite',
-        'USER': 'root',
-        'HOST': '',
+        'USER': 'django',
+        'PASSWORD': 'Django2020@',
+        'HOST': 'localhost',
         'PORT': '',
     }
 }

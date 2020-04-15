@@ -21,3 +21,8 @@ class Option(models.Model):
 class Image(models.Model):
     img_src = models.ImageField(upload_to='./upload')
     img_opt = models.ImageField()
+
+class User(models.Model):
+    user_name = models.CharField(max_length=20)
+    password1 = models.CharField(max_length=20)
+    password2 = models.CharField(max_length=20)

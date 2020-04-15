@@ -3,8 +3,10 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import loader
 from django.urls import reverse
 from django.views import generic
+from django.views.generic import CreateView
 from django.utils import timezone
 from django.conf import settings
+from django.contrib.auth import login, authenticate
 
 import tkinter
 from tkinter import filedialog
@@ -21,7 +23,7 @@ class IndexView(generic.ListView):
 
     def get_queryset(self): #コンテキスト変数に値をセットする関数
         return Filter.objects.filter().order_by('filter_name')
-
+    
 class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキストにfiter変数が渡される
     model = Filter
     template_name = 'filters/detail.html'
@@ -43,7 +45,7 @@ class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキ�
 def apply(request, filter_name):
     print('request = {} filter_name = {}'.format(request, filter_name))
     if request.method == 'POST':
-        form = BaseForm(request.POST, request.FILES)
+        form = DetailForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             input_path = settings.BASE_DIR + '/image/upload/' + request.FILES['img_src'].name
@@ -58,3 +60,19 @@ def apply(request, filter_name):
                 filter_pro.blur(filter_size) #ファイル書き出しまで行う
             return HttpResponseRedirect(reverse('filters:index'))
     return redirect(reverse('filters:detail', kwargs=dict(filter_name=filter_pk[filter_name])))
+
+class SignupView(CreateView):
+    def post(self, request, *args, **kwargs): #POST時に自動で呼び出される
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('user_name')
+            password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            return redirect(reverse('filters:index'))
+        return render(request, 'filters/signup.html', {'form': form, })
+    
+    def get(self, request, *args, **kwargs):
+        form = SignupForm(request.POST)
+        return render(request, 'filters/signup.html', {'form': form, })

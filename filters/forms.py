@@ -1,7 +1,10 @@
 from django import forms
-from .models import Filter, Image
+from django.contrib.auth.forms import UserCreationForm
 
-class BaseForm(forms.ModelForm):
+from .models import Filter, Image, User
+
+#フィルタオプション設定画面で使うフォーム
+class DetailForm(forms.ModelForm):
     class Meta:
         model = Image
         fields = ('img_src', )
@@ -9,12 +12,17 @@ class BaseForm(forms.ModelForm):
             'img_src': '入力画像',
         }
 
-class GrayForm(BaseForm):
+class GrayForm(DetailForm):
     temp = 0 #構文エラー回避のために書いておく
 
-class BlurForm(BaseForm):
+class BlurForm(DetailForm):
     filter_size = forms.IntegerField(
         label = 'フィルタサイズ',
         required = True,
         min_value=1,
     )
+
+class SignupForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('user_name', 'password1', 'password2')
