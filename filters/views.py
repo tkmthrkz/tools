@@ -76,8 +76,8 @@ class SignupView(CreateView):
         user = form.save()
         login(self.request, user)
 
-        self.request.session['username'] = self.object.username
-
+        self.request.session['userinfo'] = user
+        
         return HttpResponseRedirect(self.get_success_url())
 
     # def post(self, request, *args, **kwargs): #POST時に自動で呼び出される
@@ -106,7 +106,7 @@ class LoginView(LIV):
         user = authenticate(self.request, username=username, password=password)
         if user is not None:
             login(self.request, user)
-            self.request.session['username'] = username
+            self.request.session['userinfo'] = user
             return HttpResponseRedirect(self.get_success_url())
  
 class LogoutView(LOV):
