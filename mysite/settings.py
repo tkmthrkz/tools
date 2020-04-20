@@ -130,3 +130,8 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'image')
 MEDIA_URL = '/image/'
+
+LOGIN_URL = 'filters:login'
+LOGIN_REDIRECT_URL = 'filters:index'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False #TRUEならブラウザを閉じた場合、クッキーが即座に無効化される

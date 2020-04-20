@@ -1,4 +1,14 @@
 <a href="{% url 'filters:signup' %}">Sign Up</a>
+<br>
+<a href="{% url 'filters:login' %}">Login</a>
+<br>
+<a href="{% url 'filters:logout' %}">Logout</a>
+
+{% if session.username %}
+<h1>ようこそ、{{ session.username }}さん！</h1>
+{% endif %}
+<p>フィルタを選んでください。</p>
+
 {% if filter_list %}
     <ul>
     {% for filter in filter_list %}

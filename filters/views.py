@@ -7,11 +7,9 @@ from django.views.generic import CreateView
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.views import LoginView as LIV
+from django.contrib.auth.views import LogoutView as LOV
 
-import tkinter
-from tkinter import filedialog
-
-import tkinter
 from tkinter import filedialog
 
 from .models import Filter, Image
@@ -26,7 +24,12 @@ class IndexView(generic.ListView):
 
     def get_queryset(self): #コンテキスト変数に値をセットする関数
         return Filter.objects.filter().order_by('filter_name')
-    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['session'] = self.request.session
+        return context
+
 class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキストにfiter変数が渡される
     model = Filter
     template_name = 'filters/detail.html'
@@ -72,7 +75,9 @@ class SignupView(CreateView):
     def form_valid(self, form): #バリデーションが有効の時、呼び出される
         user = form.save()
         login(self.request, user)
-        self.object = user
+
+        self.request.session['username'] = self.object.username
+
         return HttpResponseRedirect(self.get_success_url())
 
     # def post(self, request, *args, **kwargs): #POST時に自動で呼び出される
@@ -89,3 +94,20 @@ class SignupView(CreateView):
     # def get(self, request, *args, **kwargs):
     #     form = SignupForm(request.POST)
     #     return render(request, 'filters/signup.html', {'form': form, })
+
+class LoginView(LIV):
+    form_class = AuthenticationForm
+    template_name = 'filters/login.html'
+    success_url = reverse_lazy('filters:index')
+
+    def form_valid(self, form):
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+        user = authenticate(self.request, username=username, password=password)
+        if user is not None:
+            login(self.request, user)
+            self.request.session['username'] = username
+            return HttpResponseRedirect(self.get_success_url())
+ 
+class LogoutView(LOV):
+    template_name = 'filters/logout.html'
