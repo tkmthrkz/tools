@@ -1,18 +1,33 @@
 {% load static %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
 <link rel="stylesheet" type="text/css" href="{% static 'filters/style.css' %}">
 
 <h1>{{ filter.filter_name }}</h1>
-<!--
-{% if error_message %}
-<p><strong>{{ error_message }}</strong></p>
-{% endif %}
--->
 <form action="{% url 'filters:apply' filter.filter_name %}" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="フィルタ適用">
+    <input type="submit" value="フィルタ適用" class="btn btn-primary" data-toggle="modal" data-target="#testModal">
 </form>
 
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
-<!------------>
+    <!-- フィルタ適用時に表示するモーダルウィンドウ --
+    <div class="modal fade" id="testModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4><div class="modal-title" id="myModalLabel">ダウンロード完了</div></h4>
+                </div>
+                <div class="modal-body">
+                    <p>ダウンロード画像と保存先は次の通りです</p>
+                    <p></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    ----------------------------------------->
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <!------------>

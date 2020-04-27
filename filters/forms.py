@@ -8,10 +8,14 @@ from .models import Filter, Image
 class DetailForm(forms.ModelForm):
     class Meta:
         model = Image
-        fields = ('img_src', )
+        fields = ('img_src', 'user')
         labels = {
             'img_src': '入力画像',
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['user'].widget = forms.HiddenInput()
 
 class GrayForm(DetailForm):
     temp = 0 #構文エラー回避のために書いておく

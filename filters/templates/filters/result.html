@@ -1,0 +1,8 @@
+<img src=''>
+ダウンロードはこちらから
+{% if sessioninfo.userid %}
+<a href='../../../image/output/{{ sessioninfo.userid }}/output.jpg'　download="output.jpg">画像</a>
+{% else %}
+<a href='../../../image/output/24/output.jpg' download="output.jpg">画像</a>
+{% endif %}
+<a href="{% url 'filters:index' %}">トップへ</a>

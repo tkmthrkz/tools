@@ -3,13 +3,14 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.template import loader
 from django.urls import reverse, reverse_lazy
 from django.views import generic
-from django.views.generic import CreateView
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LoginView as LIV
 from django.contrib.auth.views import LogoutView as LOV
 
+import os
+import tkinter
 from tkinter import filedialog
 
 from .models import Filter, Image
@@ -27,7 +28,7 @@ class IndexView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['session'] = self.request.session
+        context['sessioninfo'] = self.request.session
         return context
 
 class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキストにfiter変数が渡される
@@ -39,12 +40,16 @@ class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキ�
 
     def get_context_data(self, **kwargs): #コンテキスト変数の追加
         context = super().get_context_data(**kwargs)
+        if 'username' in self.request.session:
+            ini_dict = { 'user': User.objects.get(username=self.request.session['username']) }
+        else:
+            ini_dict ={ 'user': 24 }
         #フィルタにより分岐
         #filter_pk = {'blur': 2, 'gray': 3, }
         if self.kwargs['pk'] == filter_pk['gray']: #グレースケール処理の場合
-            context['form'] = GrayForm()
+            context['form'] = GrayForm(initial=ini_dict)
         elif self.kwargs['pk'] == filter_pk['blur']:
-            context['form'] = BlurForm()
+            context['form'] = BlurForm(initial=ini_dict)
         return context
     
 
@@ -54,9 +59,15 @@ def apply(request, filter_name):
         form = DetailForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            input_path = settings.BASE_DIR + '/image/upload/' + request.FILES['img_src'].name
-            #output_path = filedialog.askdirectory(title='出力先を選択してください')
-            output_path = settings.BASE_DIR + '/image/output/output.jpg' #tkinterで解決できないエラーを解決するまでの仮パス
+            #input_path = settings.BASE_DIR + '/image/upload/' + str(request.session['userid']) + '/' + request.FILES['img_src'].name
+            #iDir = os.path.abspath(os.path.dirname(__file__))
+            #output_path = tkinter.filedialog.asksaveasfilename(initialdir=iDir)
+            if 'username' in request.session:
+                input_path  = settings.MEDIA_ROOT + '/upload/{}/{}'.format(request.session['userid'], request.FILES['img_src'].name)
+                output_path = settings.MEDIA_ROOT + '/output/{}/output.jpg'.format(request.session['userid']) 
+            else:
+                input_path =  settings.MEDIA_ROOT + '/upload/24/{}'.format(request.FILES['img_src'].name)
+                output_path = settings.MEDIA_ROOT + '/output/24/output.jpg'
             filter_pro = Filter_pro(input_path, output_path)
             
             if filter_name == filter_nametoname['gray']:
@@ -64,10 +75,19 @@ def apply(request, filter_name):
             elif filter_name == filter_nametoname['blur']:
                 filter_size = int(form.data['filter_size'])
                 filter_pro.blur(filter_size) #ファイル書き出しまで行う
-            return HttpResponseRedirect(reverse('filters:index'))
-    return redirect(reverse('filters:detail', kwargs=dict(filter_name=filter_pk[filter_name])))
+            return HttpResponseRedirect(reverse('filters:result', kwargs=dict(filter_name=filter_name)))
+        print('error')
+    #return redirect(reverse('filters:detail', kwargs=dict(filter_name=filter_pk[filter_name])))
 
-class SignupView(CreateView):
+class ResultView(generic.TemplateView):
+    template_name = 'filters/result.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sessioninfo'] = self.request.session
+        return context
+
+class SignupView(generic.CreateView):
     form_class = SignupForm
     template_name = 'filters/signup.html'
     success_url = reverse_lazy('filters:index')
@@ -75,9 +95,11 @@ class SignupView(CreateView):
     def form_valid(self, form): #バリデーションが有効の時、呼び出される
         user = form.save()
         login(self.request, user)
-
-        self.request.session['userinfo'] = user
-        
+        self.request.session['userid']   = str(User.objects.get(username=user.username).id)
+        self.request.session['username'] = form.cleaned_data.get('username')
+        os.makedirs(settings.MEDIA_ROOT + '/output/{}'.format(self.request.session['userid']), exist_ok=True)
+        os.makedirs(settings.MEDIA_ROOT + '/upload/{}'.format(self.request.session['userid']),  exist_ok=True)
+        self.object = user        
         return HttpResponseRedirect(self.get_success_url())
 
     # def post(self, request, *args, **kwargs): #POST時に自動で呼び出される
@@ -106,7 +128,11 @@ class LoginView(LIV):
         user = authenticate(self.request, username=username, password=password)
         if user is not None:
             login(self.request, user)
-            self.request.session['userinfo'] = user
+            self.request.session['userid']   = str(User.objects.get(username=username).id)
+            print('id = {}'.format(User.objects.get(username=user.username).id))
+            self.request.session['username'] = username
+            os.makedirs(settings.MEDIA_ROOT + '/upload/{}'.format(self.request.session['userid']),  exist_ok=True)
+            os.makedirs(settings.MEDIA_ROOT  + '/output/{}'.format(self.request.session['userid']), exist_ok=True) #テスト用、あとで消す
             return HttpResponseRedirect(self.get_success_url())
  
 class LogoutView(LOV):
