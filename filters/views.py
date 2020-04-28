@@ -8,8 +8,10 @@ from django.conf import settings
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LoginView as LIV
 from django.contrib.auth.views import LogoutView as LOV
+from django.contrib.auth.views import auth_logout
 
 import os
+import shutil
 import tkinter
 from tkinter import filedialog
 
@@ -137,3 +139,14 @@ class LoginView(LIV):
  
 class LogoutView(LOV):
     template_name = 'filters/logout.html'
+
+class LeavecheckView(generic.TemplateView):
+    template_name = 'filters/leavecheck.html'
+
+def leave(request):
+    user = User.objects.filter(id=request.user.id)
+    shutil.rmtree(settings.MEDIA_ROOT + '/upload/{}'.format(request.session['userid']))
+    shutil.rmtree(settings.MEDIA_ROOT + '/output/{}'.format(request.session['userid']))
+    user.delete()
+    auth_logout(request)
+    return redirect(reverse('filters:index'))

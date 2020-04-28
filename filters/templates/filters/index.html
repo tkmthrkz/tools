@@ -3,6 +3,7 @@
 
 {% if sessioninfo.username %} <!-- ログイン済か -->
 <a href="{% url 'filters:logout' %}">Logout</a>
+<a href="{% url 'filters:leavecheck' %}">退会する</a>
 <h1>ようこそ、{{ sessioninfo.username }}さん！</h1>
 {% else %}
 <a href="{% url 'filters:signup' %}">Sign Up</a>

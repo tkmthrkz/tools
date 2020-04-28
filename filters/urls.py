@@ -10,4 +10,6 @@ urlpatterns = [
     path('signup/', views.SignupView.as_view(), name='signup'), #サインアップ画
     path('login/', views.LoginView.as_view(), name='login'), #ログイン画面
     path('logout/', views.LogoutView.as_view(), name='logout'), #ログアウト画面
+    path('leavecheck/', views.LeavecheckView.as_view(), name='leavecheck'),
+    path('leavecheck/leave/', views.leave, name='leave'),
 ]
