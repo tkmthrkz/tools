@@ -2,5 +2,6 @@ mysite/settings.py
 *.log
 *.pot
 *.pyc
-filters/__pycache__/
+filters/__pycache__
 image
+../venv

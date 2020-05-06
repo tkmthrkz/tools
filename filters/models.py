@@ -23,11 +23,9 @@ class Option(models.Model):
         return self.option_name
 
 
-def get_upload_to(self, file_name):
-    return os.path.join('./upload', str(self.user_id), file_name)
-
+def get_upload_to(self, file_name): #アップロード先のディレクトリを示す
+    return os.path.join('upload', str(self.user_id), file_name)
 class Image(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     img_src = models.ImageField(upload_to=get_upload_to)
     img_opt = models.ImageField()
-

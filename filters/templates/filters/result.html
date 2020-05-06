@@ -1,7 +1,5 @@
-<img src="{{ image.img_src.url }}">
-<img src="{{ image.img_opt.url }}">
-<img src="../../../image/output/24/output.jpg">
+<img src="/filters{{ image.img_src.url }}">
+<img src="/filters{{ image.img_opt.url }}">
 ダウンロードはこちらから
-<a href="{{ image.img_opt.url }}" download="output.jpg">画像</a>
-<a href="../../../image/output/24/output.jpg" download="output.jpg">画像</a>
+<a href="/filters{{ image.img_opt.url }}" download="output.jpg">画像</a>
 <a href="{% url 'filters:index' %}">トップへ</a>

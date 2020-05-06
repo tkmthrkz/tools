@@ -12,8 +12,6 @@ from django.contrib.auth.views import auth_logout
 
 import os
 import shutil
-import tkinter
-from tkinter import filedialog
 
 from .models import Filter, Image
 from .forms import *
@@ -43,7 +41,8 @@ class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキ�
     def get_context_data(self, **kwargs): #コンテキスト変数の追加
         context = super().get_context_data(**kwargs)
         if 'username' in self.request.session:
-            ini_dict = { 'user': User.objects.get(username=self.request.session['username']) }
+            user_id = User.objects.get(username=self.request.session['username']).id
+            ini_dict = { 'user': user_id }
         else:
             ini_dict ={ 'user': OTHER_ID }
         #フィルタにより分岐
@@ -75,14 +74,14 @@ def apply(request, filter_name):
                 output_path = settings.MEDIA_ROOT + '/output/24/output.jpg'
             filter_pro = Filter_pro(input_path, output_path)
             
-            if filter_name == filter_nametoname['gray']:
+            if filter_name == GRAY:
                 filter_pro.gray() #ファイル書き出しまで行う
-            elif filter_name == filter_nametoname['blur']:
+            elif filter_name == BLUR:
                 filter_size = int(form.data['filter_size'])
                 filter_pro.blur(filter_size) #ファイル書き出しまで行う
             return HttpResponseRedirect(reverse('filters:result', kwargs=dict(filter_name=filter_name)))
-        return redirect(reverse('filters:detail', kwargs=dict(filter_name=FILTER_PK[filter_name])))
-    return redirect(reverse('filters:detail', kwargs=dict(filter_name=FILTER_PK[filter_name])))
+        return redirect(reverse('filters:detail', kwargs=dict(pk=FILTER_PK[filter_name])))
+    return redirect(reverse('filters:detail', kwargs=dict(pk=FILTER_PK[filter_name])))
 
 class ResultView(generic.TemplateView):
     template_name = 'filters/result.html'
@@ -90,17 +89,10 @@ class ResultView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['sessioninfo'] = self.request.session
-        context['media_url'] = settings.MEDIA_URL
         if  'username' in self.request.session:
             context['image'] = Image.objects.filter(user_id=self.request.session['userid']).order_by('-id')[0]
         else:
             context['image'] = Image.objects.filter(user_id=OTHER_ID).order_by('-id')[0]
-        # if 'userid' in self.request.session:
-        #     output_url = os.path.join(settings.MEDIA_ROOT, 'output', self.request.session['userid'], 'output.jpg')
-        #     context['output_url'] = output_url
-        # else:
-        #     output_url = os.path.join(settings.MEDIA_ROOT, 'output', str(OTHER_ID), 'output.jpg') 
-        #     context['output_url'] = output_url
         return context
 
 class SignupView(generic.CreateView):
@@ -111,10 +103,12 @@ class SignupView(generic.CreateView):
     def form_valid(self, form): #バリデーションが有効の時、呼び出される
         user = form.save()
         login(self.request, user)
-        self.request.session['userid']   = str(User.objects.get(username=user.username).id)
-        self.request.session['username'] = form.cleaned_data.get('username')
-        os.makedirs(settings.MEDIA_ROOT + '/output/{}'.format(self.request.session['userid']), exist_ok=True)
-        os.makedirs(settings.MEDIA_ROOT + '/upload/{}'.format(self.request.session['userid']),  exist_ok=True)
+        user_id = str(User.objects.get(username=user.username).id)
+        user_name = form.cleaned_data.get('username')
+        self.request.session['userid']   = user_id
+        self.request.session['username'] = user_name
+        os.makedirs(settings.MEDIA_ROOT + '/output/{}'.format(user_id), exist_ok=True)
+        os.makedirs(settings.MEDIA_ROOT + '/upload/{}'.format(user_id),  exist_ok=True)
         self.object = user        
         return HttpResponseRedirect(self.get_success_url())
 
@@ -124,15 +118,16 @@ class LoginView(LIV):
     success_url = reverse_lazy('filters:index')
 
     def form_valid(self, form):
-        username = form.cleaned_data.get('username')
+        user_name = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
-        user = authenticate(self.request, username=username, password=password)
+        user = authenticate(self.request, username=user_name, password=password)
         if user is not None:
             login(self.request, user)
-            self.request.session['userid']   = str(User.objects.get(username=username).id)
-            self.request.session['username'] = username
-            os.makedirs(settings.MEDIA_ROOT + '/upload/{}'.format(self.request.session['userid']),  exist_ok=True) 
-            os.makedirs(settings.MEDIA_ROOT  + '/output/{}'.format(self.request.session['userid']), exist_ok=True) 
+            user_id = str(User.objects.get(username=user_name).id)
+            self.request.session['userid']   = user_id
+            self.request.session['username'] = user_name
+            os.makedirs(settings.MEDIA_ROOT + '/upload/{}'.format(user_id),  exist_ok=True) 
+            os.makedirs(settings.MEDIA_ROOT  + '/output/{}'.format(user_id), exist_ok=True) 
             return HttpResponseRedirect(self.get_success_url())
  
 class LogoutView(LOV):
@@ -142,9 +137,10 @@ class LeavecheckView(generic.TemplateView):
     template_name = 'filters/leavecheck.html'
 
 def leave(request):
-    user = User.objects.filter(id=request.user.id)
-    shutil.rmtree(settings.MEDIA_ROOT + '/upload/{}'.format(request.session['userid']))
-    shutil.rmtree(settings.MEDIA_ROOT + '/output/{}'.format(request.session['userid']))
+    user_id = request.user.id
+    user = User.objects.filter(id=user_id)
+    shutil.rmtree(settings.MEDIA_ROOT + '/upload/{}'.format(user_id))
+    shutil.rmtree(settings.MEDIA_ROOT + '/output/{}'.format(user_id))
     user.delete()
     auth_logout(request)
     return redirect(reverse('filters:index'))
