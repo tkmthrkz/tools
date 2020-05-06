@@ -54,24 +54,29 @@ class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキ�
 
 def apply(request, filter_name):
     if request.method == 'POST':
+        print(request.FILES['img_src'])
         form = DetailForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
+            user_id = request.session['userid']
+            inputimg_name = request.FILES['img_src'].name
+            outputimg_name = 'output_' + request.FILES['img_src'].name
             if 'username' in request.session:
-                image = Image.objects.filter(user_id=request.session['userid']).order_by('-id')[0]
-                image.img_opt = 'output/{}/output.jpg'.format(request.session['userid'])
-                image.save()
-            else:
-                image = Image.objects.filter(user_id=OTHER_ID).order_by('-id')[0]
-                image.img_opt = 'output/{}/output.jpg'.format(str(OTHER_ID))
+                image = Image.objects.filter(user_id=user_id).order_by('-id')[0]
+                image.img_opt = 'output/{}/{}'.format(user_id, outputimg_name)
                 image.save()
 
-            if 'username' in request.session:
-                input_path  = settings.MEDIA_ROOT + '/upload/{}/{}'.format(request.session['userid'], request.FILES['img_src'].name)
-                output_path = settings.MEDIA_ROOT + '/output/{}/output.jpg'.format(request.session['userid']) 
+                input_path  = settings.MEDIA_ROOT + '/upload/{}/{}'.format(user_id, inputimg_name)
+                output_path = settings.MEDIA_ROOT + '/output/{}/{}'.format(user_id, outputimg_name) 
+
             else:
-                input_path =  settings.MEDIA_ROOT + '/upload/24/{}'.format(request.FILES['img_src'].name)
-                output_path = settings.MEDIA_ROOT + '/output/24/output.jpg'
+                image = Image.objects.filter(user_id=OTHER_ID).order_by('-id')[0]
+                image.img_opt = 'output/{}/{}'.format(str(OTHER_ID), outputimg_name)
+                image.save()
+
+                input_path =  settings.MEDIA_ROOT + '/upload/24/{}'.format(inputimg_name)
+                output_path = settings.MEDIA_ROOT + '/output/24/{}'.format(outputimg_name)
+
             filter_pro = Filter_pro(input_path, output_path)
             
             if filter_name == GRAY:
