@@ -16,6 +16,7 @@ urlpatterns = [
     path('logout/', views.LogoutView.as_view(), name='logout'), #ログアウト画面
     path('leavecheck/', views.LeavecheckView.as_view(), name='leavecheck'),
     path('leavecheck/leave/', views.leave, name='leave'),
+    path('chm/', views.chmView.as_view(), name='chm'), #変換履歴管理画面
 ]
 
 urlpatterns += staticfiles_urlpatterns()

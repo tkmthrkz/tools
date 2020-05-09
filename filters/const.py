@@ -8,4 +8,4 @@ BLUR = 'blur'
 GRAY = 'gray'
 
 #OTHER_ID = 24 
-OTHER_ID = 3
+OTHER_ID = 4

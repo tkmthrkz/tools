@@ -1,0 +1,12 @@
+{% if image_list %}
+<ul>
+    {% for image in image_list %}
+        {% if image.img_opt %}
+        <img src="/filters{{ image.img_src.url }}" width="300"><img src="/filters{{ image.img_opt.url }}" width="300">
+        {% endif %}
+    {% endfor %}
+</ul>
+{% else %}
+<p>変換履歴はありません</p>
+{% endif %}
+<a href='filter:index'>トップへ</a>

@@ -28,4 +28,7 @@ def get_upload_to(self, file_name): #アップロード先のディレクトリ�
 class Image(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     img_src = models.ImageField(upload_to=get_upload_to)
+    img_src_name = models.CharField(max_length=100, default='img_src')
     img_opt = models.ImageField()
+    img_opt_name = models.CharField(max_length=100, default='img_opt')
+    date = models.DateTimeField(default=timezone.now)

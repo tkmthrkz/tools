@@ -54,16 +54,17 @@ class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキ�
 
 def apply(request, filter_name):
     if request.method == 'POST':
-        print(request.FILES['img_src'])
         form = DetailForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            user_id = request.session['userid']
             inputimg_name = request.FILES['img_src'].name
             outputimg_name = 'output_' + request.FILES['img_src'].name
             if 'username' in request.session:
+                user_id = request.session['userid']
                 image = Image.objects.filter(user_id=user_id).order_by('-id')[0]
+                image.img_src_name = inputimg_name
                 image.img_opt = 'output/{}/{}'.format(user_id, outputimg_name)
+                image.img_opt_name = outputimg_name
                 image.save()
 
                 input_path  = settings.MEDIA_ROOT + '/upload/{}/{}'.format(user_id, inputimg_name)
@@ -71,11 +72,13 @@ def apply(request, filter_name):
 
             else:
                 image = Image.objects.filter(user_id=OTHER_ID).order_by('-id')[0]
+                image.img_src_name = inputimg_name
                 image.img_opt = 'output/{}/{}'.format(str(OTHER_ID), outputimg_name)
+                image.img_opt_name = outputimg_name
                 image.save()
 
-                input_path =  settings.MEDIA_ROOT + '/upload/24/{}'.format(inputimg_name)
-                output_path = settings.MEDIA_ROOT + '/output/24/{}'.format(outputimg_name)
+                input_path =  settings.MEDIA_ROOT + '/upload/{}/{}'.format(OTHER_ID, inputimg_name)
+                output_path = settings.MEDIA_ROOT + '/output/{}/{}'.format(OTHER_ID, outputimg_name)
 
             filter_pro = Filter_pro(input_path, output_path)
             
@@ -99,6 +102,14 @@ class ResultView(generic.TemplateView):
         else:
             context['image'] = Image.objects.filter(user_id=OTHER_ID).order_by('-id')[0]
         return context
+
+class chmView(generic.ListView): #変換履歴管理画面
+    template_name = 'filters/chm.html'
+    context_object_name = 'image_list'
+
+    def get_queryset(self):  # コンテキスト変数に値をセットする関数
+        user_id = self.request.session['userid']
+        return Image.objects.filter(user_id=user_id)
 
 class SignupView(generic.CreateView):
     form_class = SignupForm
