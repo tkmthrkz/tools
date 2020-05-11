@@ -29,6 +29,8 @@ class IndexView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['sessioninfo'] = self.request.session
+        context['img_src'] = SAMPLE_IMG_SRC
+        context['img_opt'] = SAMPLE_IMG_OPT
         return context
 
 class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキストにfiter変数が渡される
@@ -46,9 +48,9 @@ class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキ�
         else:
             ini_dict ={ 'user': OTHER_ID }
         #フィルタにより分岐
-        if self.kwargs['pk'] == FILTER_PK['gray']: #グレースケール処理の場合
+        if self.kwargs['pk'] == FILTER_NAME2PK['gray']: #グレースケール処理の場合
             context['form'] = GrayForm(initial=ini_dict)
-        elif self.kwargs['pk'] == FILTER_PK['blur']:
+        elif self.kwargs['pk'] == FILTER_NAME2PK['blur']:
             context['form'] = BlurForm(initial=ini_dict)
         return context
 
@@ -88,8 +90,8 @@ def apply(request, filter_name):
                 filter_size = int(form.data['filter_size'])
                 filter_pro.blur(filter_size) #ファイル書き出しまで行う
             return HttpResponseRedirect(reverse('filters:result', kwargs=dict(filter_name=filter_name)))
-        return redirect(reverse('filters:detail', kwargs=dict(pk=FILTER_PK[filter_name])))
-    return redirect(reverse('filters:detail', kwargs=dict(pk=FILTER_PK[filter_name])))
+        return redirect(reverse('filters:detail', kwargs=dict(pk=FILTER_NAME2PK[filter_name])))
+    return redirect(reverse('filters:detail', kwargs=dict(pk=FILTER_NAME2PK[filter_name])))
 
 class ResultView(generic.TemplateView):
     template_name = 'filters/result.html'

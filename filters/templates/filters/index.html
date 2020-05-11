@@ -1,25 +1,43 @@
+{% load static %}
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
+<link rel="stylesheet" type="text/css" href="{% static 'filters/style.css' %}">
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <a href="{% url 'filters:index' %}" class="navbar-brand">Filters</a>
+    {% if sessioninfo.username %} <!-- ログイン済 -->
+        <a class="nav-item nav-link" href="{% url 'filters:logout' %}" >Logout</a>
+        <a class="nav-item nav-link" href="{% url 'filters:leavecheck' %}">退会する</a>
+        <a class="nav-item nav-link" href="{% url 'filters:chm' %}">変換履歴を表示</a>
+    {% else %}
+        <a class="nav-item nav-link" href="{% url 'filters:signup' %}">Sign Up</a>
+        <a class="nav-item nav-link" href="{% url 'filters:login' %}">Login</a>
+    {% endif %}
+</nav>
 
 {% if sessioninfo.username %} <!-- ログイン済 -->
-<a href="{% url 'filters:logout' %}">Logout</a>
-<a href="{% url 'filters:leavecheck' %}">退会する</a>
-<a href="{% url 'filters:chm' %}">変換履歴を表示</a>
 <h1>ようこそ、{{ sessioninfo.username }}さん！</h1>
-{% else %}
-<a href="{% url 'filters:signup' %}">Sign Up</a>
-<br>
-<a href="{% url 'filters:login' %}">Login</a>
-
 {% endif %}
 <p>フィルタを選んでください。</p>
 
 {% if filter_list %}
-    <ul>
+    <div class="row">
     {% for filter in filter_list %}
-        <li><a href="{% url 'filters:detail' filter.id %}">{{ filter.filter_name }}</a></li>
+        <div class="col-sm-6">
+            <div class="col-sm-12"><a href="{% url 'filters:detail' filter.id %}">{{ filter.filter_name }}</a></div>
+            <div class="col-sm-12">{{ filter.filter_explain }}</div>
+        {% if filter.filter_name == 'blur' %}
+            <div class="col-sm-6"><img src="{{ img_src }}" width="100"></div>
+            <div class="col-sm-6"><img src="{{ img_opt.blur}}"width="100"></div>
+        {% elif filter.filter_name == 'gray' %}
+            <div class="col-sm-6"><img src="{{ img_src }}" width="100"></div>
+            <div class="col-sm-6"><img src="{{ img_opt.gray}}" width="100"></div>
+        {% endif %}
+        </div>
     {% endfor %}
-    </ul>
+    </div>
 {% else %}
     <p>利用できるフィルターはありません</p>
 {% endif %}
+
+<div class="row">
