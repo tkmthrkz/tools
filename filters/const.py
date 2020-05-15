@@ -15,8 +15,8 @@ FILTER_PK2NAME = {
 BLUR = 'blur'
 GRAY = 'gray'
 
-OTHER_ID = 24 
-#OTHER_ID = 4
+#OTHER_ID = 24 
+OTHER_ID = 4
 
 SAMPLE_IMG_SRC = '/filters/image/sample/lena.jpg'
 
@@ -24,3 +24,8 @@ SAMPLE_IMG_OPT = {
     'blur': '/filters/image/sample/blur.jpg',
     'gray': '/filters/image/sample/gray.jpg',
     }
+
+SUPPORT_EXT = [
+    '.bmp', '.dib', '.pbm', '.pgm', '.ppm', '.pnm', '.sr',
+    '.ras', '.jpeg', '.jpg', '.jpe', '.jp2', '.png', '.tiff', '.tif'
+    ]

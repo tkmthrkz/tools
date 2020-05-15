@@ -42,6 +42,7 @@ class DetailView(generic.DetailView): #DetailViewでは自動的にコンテキ�
 
     def get_context_data(self, **kwargs): #コンテキスト変数の追加
         context = super().get_context_data(**kwargs)
+        context['err_msg'] = ''
         if 'username' in self.request.session:
             user_id = User.objects.get(username=self.request.session['username']).id
             ini_dict = { 'user': user_id }
@@ -87,6 +88,8 @@ def apply(request, filter_name):
             if filter_name == GRAY:
                 filter_pro.gray() #ファイル書き出しまで行う
             elif filter_name == BLUR:
+                if 'filter_size' not in form.cleaned_data:
+                    return redirect(reverse('filters:detail', kwargs=dict(pk=FILTER_NAME2PK[filter_name])))
                 filter_size = int(form.data['filter_size'])
                 filter_pro.blur(filter_size) #ファイル書き出しまで行う
             return HttpResponseRedirect(reverse('filters:result', kwargs=dict(filter_name=filter_name)))

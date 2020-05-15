@@ -26,6 +26,13 @@ class BlurForm(DetailForm):
         required = True,
         min_value=1,
     )
+    def cleaned_filter_size(self):
+        filter_size = self.cleaned_data['filter_size']
+        if (filter_size % 2 == 0):
+            raise forms.ValidationError('奇数を入力してください')
+        elif (filter_size > 100):
+            raise forms.ValidationError('100より小さい値を入力してください')
+        return filter_size
 
 class SignupForm(UserCreationForm):
     class Meta:

@@ -3,5 +3,6 @@ mysite/settings.py
 *.pot
 *.pyc
 filters/__pycache__
-image
+image/output
+image/upload
 ../venv
